@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ordena la Historia</title>
+  <style>
+    :root{
+      --navy:#061227;
+      --navy2:#071a37;
+      --gold:#d6b25e;
+      --gold2:#f0d79a;
+      --line:rgba(214,178,94,.22);
+      --line2:rgba(214,178,94,.40);
+      --text:rgba(240,232,210,.95);
+      --muted:rgba(240,232,210,.75);
+      --shadow:0 14px 40px rgba(0,0,0,.55);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(900px 520px at 20% 0%, rgba(214,178,94,.10), transparent 55%),
+                  radial-gradient(700px 450px at 85% 10%, rgba(214,178,94,.06), transparent 52%),
+                  var(--navy);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* HOME */
+    header{
+      padding:14px 14px 0;
+      position:relative;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    .header-img{
+      width:100%;
+      height:auto;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      box-shadow: var(--shadow);
+      display:block;
+    }
+    .papyrus{
+      position:absolute;
+      top:24px;
+      right:26px;
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(6,18,39,.55);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      font-size:22px;
+      line-height:1;
+    }
+    .papyrus:hover{ border-color: rgba(214,178,94,.42); }
+
+    .home-wrap{
+      max-width:1100px;
+      margin: 14px auto 0;
+      padding: 0 14px;
+      text-align:center;
+    }
+    .home-line{
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing:.2px;
+      user-select:none;
+      margin: 0 0 14px;
+    }
+    .start-btn{
+      width:min(520px, 100%);
+      border:1px solid rgba(214,178,94,.42);
+      background: linear-gradient(180deg, rgba(214,178,94,.18), rgba(6,18,39,.35));
+      color: var(--gold2);
+      padding: 16px 18px;
+      border-radius: 22px;
+      cursor:pointer;
+      font-weight: 1000;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      box-shadow: 0 16px 45px rgba(0,0,0,.55);
+      font-size: 16px;
+    }
+    .start-btn:hover{
+      border-color: rgba(214,178,94,.65);
+      box-shadow: 0 18px 55px rgba(0,0,0,.62);
+      transform: translateY(-1px);
+    }
+    .start-btn:active{ transform: translateY(0px); }
+
+    /* GAME */
+    main{
+      max-width: 920px;
+      margin: 18px auto 60px;
+      padding: 0 14px;
+      display:none;
+    }
+    .panel{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(7,26,55,.72), rgba(6,18,39,.60));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel-h{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .who{
+      font-size:14px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+    .who b{ color: var(--gold2); }
+
+    .mini-actions{ display:flex; gap:10px; flex:0 0 auto; }
+    .mini-btn{
+      border:1px solid var(--line);
+      background: rgba(6,18,39,.45);
+      color: var(--text);
+      padding:8px 10px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .mini-btn:hover{ border-color: rgba(214,178,94,.42); }
+    .mini-btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .panel-b{ padding:14px; }
+    .list{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:240px;
+    }
+    .card{
+      border:1px solid rgba(214,178,94,.22);
+      background: rgba(6,18,39,.55);
+      border-radius: 16px;
+      padding: 12px 12px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      cursor:grab;
+    }
+    .card:active{ cursor:grabbing; }
+    .card.locked{ cursor:default; }
+    .handle{
+      color: rgba(214,178,94,.85);
+      opacity:.95;
+      width:14px;
+      margin-top:2px;
+      user-select:none;
+      flex:0 0 auto;
+    }
+    .title{
+      margin:0;
+      font-size:14px;
+      font-weight:850;
+      letter-spacing:.1px;
+      color: rgba(240,232,210,.96);
+    }
+    .meta{
+      margin:4px 0 0;
+      font-size: 12px;
+      color: rgba(240,232,210,.72);
+      min-height: 1em;
+    }
+    .ghost{ opacity:.50; border-style:dashed; }
+
+    /* Compact rounds marker */
+    .round{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .round-pill{
+      border:1px solid rgba(214,178,94,.40);
+      background: rgba(214,178,94,.10);
+      color: var(--gold2);
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.25px;
+      padding:6px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .round-bar{
+      width: 86px;
+      height: 8px;
+      border-radius: 999px;
+      border:1px solid rgba(214,178,94,.25);
+      background: rgba(6,18,39,.35);
+      overflow:hidden;
+    }
+    .round-bar-fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(214,178,94,.35), rgba(240,215,154,.75));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+
+    @media (max-width: 680px){
+      .round-bar{ width: 62px; }
+      .round-pill{ font-size: 11px; padding:6px 9px; }
+    }
+    @media (max-width: 520px){
+      .mini-actions{ gap:8px; }
+      .mini-btn{ padding:8px 9px; }
+      .panel-b{ padding:12px; }
+      .card{ padding:11px 11px; }
+      .start-btn{ font-size: 15px; padding: 15px 16px; }
+      .round-bar{ display:none; }
+    }
+
+    /* SETTINGS MODAL */
+    .backdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.62);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 18px;
+      z-index:50;
+    }
+    .modal{
+      width:min(820px, 100%);
+      border-radius: 24px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(7,26,55,.96), rgba(6,18,39,.96));
+      box-shadow: 0 18px 70px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    .modal-h{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modal-h h3{
+      margin:0;
+      font-size: 15px;
+      letter-spacing:.25px;
+      color: rgba(240,232,210,.95);
+    }
+    .modal-b{ padding:14px; display:grid; gap:12px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .cardset{
+      border:1px solid rgba(214,178,94,.22);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(6,18,39,.45);
+    }
+    .cardset .label{
+      font-size: 12px;
+      color: rgba(240,232,210,.70);
+      margin: 0 0 8px;
+      letter-spacing:.15px;
+    }
+
+    .seg{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 420px){
+      .seg{ grid-template-columns: 1fr; }
+    }
+
+    .seg button{
+      border:1px solid rgba(214,178,94,.22);
+      background: rgba(6,18,39,.35);
+      color: rgba(240,232,210,.9);
+      padding: 10px 10px;
+      border-radius: 16px;
+      cursor:pointer;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .seg button.active{
+      border-color: rgba(214,178,94,.65);
+      background: rgba(214,178,94,.14);
+      color: var(--gold2);
+    }
+    .seg button:hover{ border-color: rgba(214,178,94,.42); }
+
+    select, textarea{
+      width:100%;
+      border:1px solid rgba(214,178,94,.22);
+      background: rgba(6,18,39,.35);
+      color: rgba(240,232,210,.92);
+      border-radius: 16px;
+      padding: 10px 12px;
+      outline:none;
+    }
+    textarea{ min-height: 96px; resize: vertical; }
+
+    .modal-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* POPUP FINAL */
+    .popup{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:60;
+      background: rgba(0,0,0,.62);
+    }
+    .popup-card{
+      width:min(760px, 100%);
+      border-radius: 24px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(7,26,55,.96), rgba(6,18,39,.96));
+      box-shadow: 0 18px 70px rgba(0,0,0,.65);
+      padding: 16px;
+    }
+    .popup-card h4{
+      margin:0 0 8px;
+      font-size: 16px;
+      color: var(--gold2);
+      letter-spacing:.2px;
+    }
+    .popup-card p{
+      margin: 0 0 10px;
+      color: rgba(240,232,210,.85);
+      line-height:1.45;
+      font-size: 13.5px;
+      white-space:pre-wrap;
+    }
+    .scores{
+      border:1px solid rgba(214,178,94,.22);
+      border-radius:16px;
+      padding:12px;
+      background: rgba(6,18,39,.45);
+      color: rgba(240,232,210,.85);
+      font-size:13px;
+      line-height:1.4;
+      white-space:pre-wrap;
+      margin: 10px 0 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img class="header-img" src="cabecera.png" alt="Cabecera" />
+    <div class="papyrus" id="btnSettings" title="Ajustes">📜</div>
+  </header>
+
+  <div class="home-wrap">
+    <div class="home-line">Arrastra los eventos para ordenarlos del más antiguo → más reciente.</div>
+    <button class="start-btn" id="btnStart">¡ORDENEMOS LA HISTORIA!</button>
+  </div>
+
+  <main id="game">
+    <section class="panel">
+      <div class="panel-h">
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <div class="who" id="whoLine">Turno: <b>—</b> · Pantalla <b>—</b></div>
+
+          <div class="round" aria-label="Progreso">
+            <span class="round-pill" id="roundPill">Ronda —/—</span>
+            <div class="round-bar" aria-hidden="true">
+              <div class="round-bar-fill" id="roundBarFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-actions">
+          <button class="mini-btn" id="btnCheck">Comprobar</button>
+          <button class="mini-btn" id="btnNext" disabled>Siguiente</button>
+        </div>
+      </div>
+
+      <div class="panel-b">
+        <ul class="list" id="cardList"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Ajustes -->
+  <div class="backdrop" id="backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-h">
+        <h3>Ajustes</h3>
+        <button class="mini-btn" id="btnClose">Cerrar</button>
+      </div>
+
+      <div class="modal-b">
+        <div class="grid">
+          <div class="cardset">
+            <div class="label">Modo</div>
+            <div class="seg" role="group" aria-label="Modo">
+              <button id="modeSolo" type="button">Solo</button>
+              <button id="modeGroups" type="button">Grupos</button>
+            </div>
+          </div>
+
+          <div class="cardset">
+            <div class="label">Eventos por ronda</div>
+            <select id="perScreen">
+              <option>4</option>
+              <option selected>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+            </select>
+          </div>
+
+          <div class="cardset">
+            <div class="label">Rondas</div>
+            <select id="rounds">
+              <option>5</option>
+              <option selected>8</option>
+              <option>10</option>
+              <option>12</option>
+              <option>15</option>
+              <option>20</option>
+            </select>
+          </div>
+
+          <div class="cardset">
+            <div class="label">Dificultad</div>
+            <select id="difficulty">
+              <option value="easy">Fácil</option>
+              <option value="normal" selected>Normal</option>
+              <option value="hard">Difícil</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cardset" id="groupsBox" style="display:none;">
+          <div class="label">Grupos</div>
+          <textarea id="groups" placeholder="Atenas&#10;Roma&#10;Sumer"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="mini-btn" id="btnSave" style="border-color: rgba(214,178,94,.42);">Guardar</button>
+          <button class="mini-btn" id="btnReset" style="border-color: rgba(214,178,94,.22);">Reiniciar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup final -->
+  <div class="popup" id="popup">
+    <div class="popup-card">
+      <h4 id="popupTitle">Fin</h4>
+      <p id="popupText"></p>
+      <div class="scores" id="popupScores" style="display:none;"></div>
+      <button class="mini-btn" id="btnPopupClose">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * FRASES (random)
+     ***********************/
+    const QUOTES_KEEP_GOING = [
+      { who:"Winston Churchill", text:"“Never give in, never give in, never, never, never, never…”" },
+      { who:"Franklin D. Roosevelt", text:"“The only thing we have to fear is fear itself.”" },
+      { who:"Theodore Roosevelt", text:"“It is hard to fail, but it is worse never to have tried to succeed.”" },
+      { who:"Thomas A. Edison", text:"“I have not failed. I've just found 10,000 ways that won't work.”" },
+      { who:"Amelia Earhart", text:"“The most difficult thing is the decision to act. The rest is merely tenacity.”" },
+      { who:"Mark Twain", text:"“Courage is resistance to fear, mastery of fear—not absence of fear.”" }
+    ];
+
+    const QUOTES_VICTORY = [
+      { who:"Julio César", text:"“Veni, vidi, vici.”" },
+      { who:"Neil Armstrong", text:"“That's one small step for man, one giant leap for mankind.”" },
+      { who:"Winston Churchill", text:"“This is not the end… but it is, perhaps, the end of the beginning.”" },
+      { who:"John F. Kennedy", text:"“We choose to go to the Moon… not because they are easy, but because they are hard.”" },
+      { who:"Martin Luther King Jr.", text:"“Free at last! Free at last! Thank God Almighty, we are free at last!”" },
+      { who:"Ronald Reagan", text:"“Mr. Gorbachev, tear down this wall!”" }
+    ];
+
+    const QUOTES_GROUPS = [
+      { who:"John F. Kennedy", text:"“Victory has a hundred fathers and defeat is an orphan.”" },
+      { who:"Andrew Carnegie", text:"“No man will make a great leader who wants to do it all himself or get all the credit for doing it.”" },
+      { who:"Andrew Carnegie", text:"“Teamwork is the ability to work together toward a common vision… It is the fuel that allows common people to attain uncommon results.”" },
+      { who:"Rudyard Kipling", text:"“If you can meet with Triumph and Disaster / And treat those two impostors just the same…”" },
+      { who:"Eleanor Roosevelt", text:"“You have to accept whatever comes and the only important thing is that you meet it with courage…”" },
+      { who:"Nelson Mandela", text:"“I never lose. I either win or learn.”" }
+    ];
+
+    function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    /***********************
+     * EVENTOS (PARCIAL)
+     * Formato: "AÑO|TÍTULO"
+     * (Pega más abajo para llegar a 800)
+     ***********************/
+    const EVENT_LINES = [
+      "-3000000|Primeras herramientas de piedra (Paleolítico)",
+      "-10000|Revolución neolítica: agricultura y sedentarismo",
+      "-3200|Escritura cuneiforme en Mesopotamia",
+      "-3100|Unificación del Antiguo Egipto",
+      "-2600|Construcción de grandes pirámides en Egipto (auge del Reino Antiguo)",
+      "-2334|Sargón de Acad funda el Imperio acadio",
+      "-1754|Código de Hammurabi",
+      "-1200|Colapso de la Edad del Bronce en el Mediterráneo oriental",
+      "-776|Primeros Juegos Olímpicos (tradicional)",
+      "-753|Fundación tradicional de Roma",
+      "-509|Inicio de la República romana (tradicional)",
+      "-490|Batalla de Maratón",
+      "-480|Batalla de las Termópilas",
+      "-431|Guerra del Peloponeso (inicio)",
+      "-399|Muerte de Sócrates",
+      "-336|Alejandro Magno asciende al trono",
+      "-323|Muerte de Alejandro Magno",
+      "-264|Primera Guerra Púnica (inicio)",
+      "-218|Segunda Guerra Púnica (inicio)",
+      "-216|Batalla de Cannas",
+      "-202|Batalla de Zama",
+      "-146|Destrucción de Cartago",
+      "-44|Asesinato de Julio César",
+      "-27|Augusto inaugura el Principado",
+      "64|Gran incendio de Roma",
+      "79|Erupción del Vesubio (Pompeya)",
+      "313|Edicto de Milán",
+      "476|Caída del Imperio romano de Occidente (convencional)",
+      "622|Hégira (inicio del calendario islámico)",
+      "800|Coronación de Carlomagno",
+      "1066|Conquista normanda de Inglaterra",
+      "1096|Primera Cruzada (inicio)",
+      "1215|Carta Magna",
+      "1347|Peste Negra en Europa (expansión)",
+      "1453|Caída de Constantinopla",
+      "1492|Llegada de Colón a América",
+      "1517|Publicación de las 95 tesis de Martín Lutero",
+      "1521|Caída de Tenochtitlán",
+      "1543|Copérnico publica 'De revolutionibus'",
+      "1618|Guerra de los Treinta Años (inicio)",
+      "1648|Paz de Westfalia",
+      "1687|Newton publica 'Principia'",
+      "1776|Declaración de Independencia de EE.UU.",
+      "1789|Comienzo de la Revolución francesa",
+      "1815|Congreso de Viena",
+      "1848|Oleada de revoluciones europeas",
+      "1859|Darwin publica 'El origen de las especies'",
+      "1861|Comienza la Guerra Civil estadounidense",
+      "1868|Restauración Meiji (Japón)",
+      "1871|Unificación de Alemania",
+      "1914|Comienza la Primera Guerra Mundial",
+      "1917|Revolución rusa (hito)",
+      "1918|Armisticio de la Primera Guerra Mundial",
+      "1929|Crack de 1929",
+      "1939|Comienza la Segunda Guerra Mundial",
+      "1945|Entrada en vigor de la ONU",
+      "1948|Declaración Universal de los Derechos Humanos",
+      "1957|Sputnik 1 (inicio de la era espacial)",
+      "1962|Crisis de los misiles de Cuba",
+      "1969|Llegada a la Luna (Apollo 11)",
+      "1986|Accidente nuclear de Chernóbil",
+      "1989|Caída del Muro de Berlín",
+      "1991|Disolución de la Unión Soviética",
+      "2001|Atentados del 11 de septiembre",
+      "2008|Crisis financiera global",
+      "2020|Pandemia de COVID-19 (hito)",
+      "2022|Invasión rusa de Ucrania (escalada total)",
+      "2023|Popularización masiva de la IA generativa",
+      "2026|Continuidad y regulación creciente de la IA (hito)"
+      // ← PEGA MÁS AQUÍ (AÑO|TÍTULO)
+    ];
+
+    function parseEvents(lines){
+      const out = [];
+      const seen = new Set();
+      for(const line of lines){
+        const s = String(line);
+        if(!s.includes("|")) continue;
+        const [yRaw, ...rest] = s.split("|");
+        const year = Number(yRaw.trim());
+        const title = rest.join("|").trim();
+        if(!Number.isFinite(year) || !title) continue;
+        const key = year + "|" + title.toLowerCase();
+        if(seen.has(key)) continue;
+        seen.add(key);
+        out.push({ id: "e"+out.length, year, title });
+      }
+      return out;
+    }
+    const ALL_EVENTS = parseEvents(EVENT_LINES);
+
+    /***********************
+     * HELPERS
+     ***********************/
+    const $ = (sel)=>document.querySelector(sel);
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[s]));
+    }
+    function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    /***********************
+     * STATE
+     ***********************/
+    const btnStart = $("#btnStart");
+    const btnSettings = $("#btnSettings");
+    const backdrop = $("#backdrop");
+    const btnClose = $("#btnClose");
+    const btnSave = $("#btnSave");
+    const btnReset = $("#btnReset");
+
+    const modeSolo = $("#modeSolo");
+    const modeGroups = $("#modeGroups");
+    const perScreenSel = $("#perScreen");
+    const roundsSel = $("#rounds");
+    const difficultySel = $("#difficulty");
+    const groupsBox = $("#groupsBox");
+    const groupsTa = $("#groups");
+
+    const game = $("#game");
+    const cardList = $("#cardList");
+    const whoLine = $("#whoLine");
+    const btnCheck = $("#btnCheck");
+    const btnNext = $("#btnNext");
+
+    const roundPill = $("#roundPill");
+    const roundBarFill = $("#roundBarFill");
+
+    const popup = $("#popup");
+    const popupTitle = $("#popupTitle");
+    const popupText = $("#popupText");
+    const popupScores = $("#popupScores");
+    const btnPopupClose = $("#btnPopupClose");
+
+    let draggedEl = null;
+
+    const state = {
+      mode: "solo",
+      perScreen: 5,
+      rounds: 8,
+      difficulty: "normal",
+      groups: ["Grupo 1","Grupo 2"],
+
+      currentGroupIdx: 0,
+      screenIndex: 1,
+
+      scoreByGroup: {},
+      correctTotal: 0,
+      wrongTotal: 0,
+
+      usedIds: new Set(),
+      locked: false,
+
+      currentRoundEvents: [],
+      correctOrder: [],
+
+      // tie-break
+      tieBreakActive: false,
+      tieWinners: [],
+      tieScores: {},
+      tieRound: 0
+    };
+
+    function saveSettings(){
+      localStorage.setItem("hist_sort_settings_full", JSON.stringify({
+        mode: state.mode,
+        perScreen: state.perScreen,
+        rounds: state.rounds,
+        difficulty: state.difficulty,
+        groups: state.groups
+      }));
+    }
+    function loadSettings(){
+      try{
+        const s = JSON.parse(localStorage.getItem("hist_sort_settings_full") || "{}");
+        if(s.mode) state.mode = s.mode;
+        if(s.perScreen) state.perScreen = clamp(+s.perScreen, 4, 8);
+        if(s.rounds) state.rounds = clamp(+s.rounds, 1, 50);
+        if(s.difficulty) state.difficulty = s.difficulty;
+        if(Array.isArray(s.groups) && s.groups.length >= 2){
+          state.groups = s.groups.map(x=>String(x).trim()).filter(Boolean).slice(0,12);
+        }
+      }catch(_){}
+    }
+
+    function resetGame(){
+      state.currentGroupIdx = 0;
+      state.screenIndex = 1;
+      state.scoreByGroup = {};
+      state.correctTotal = 0;
+      state.wrongTotal = 0;
+      state.usedIds = new Set();
+      state.locked = false;
+
+      state.tieBreakActive = false;
+      state.tieWinners = [];
+      state.tieScores = {};
+      state.tieRound = 0;
+
+      if(state.mode === "groups"){
+        for(const g of state.groups) state.scoreByGroup[g] = 0;
+      }
+
+      game.style.display = "none";
+      btnNext.disabled = true;
+      btnCheck.disabled = false;
+    }
+
+    function totalScreens(){
+      if(state.tieBreakActive) return 1;
+      return (state.mode === "solo") ? state.rounds : state.rounds * state.groups.length;
+    }
+
+    function getRoundProgress(){
+      if(state.tieBreakActive){
+        return { label: "Desempate", pct: 100 };
+      }
+      if(state.mode === "solo"){
+        const r = state.screenIndex;
+        const total = state.rounds;
+        const pct = total ? Math.round((r/total)*100) : 0;
+        return { label: `Ronda ${r}/${total}`, pct };
+      }
+      const r = Math.ceil(state.screenIndex / state.groups.length);
+      const total = state.rounds;
+      const pct = total ? Math.round((r/total)*100) : 0;
+      return { label: `Ronda ${r}/${total}`, pct };
+    }
+
+    function currentGroupName(){
+      if(state.tieBreakActive) return state.tieWinners[state.currentGroupIdx] || "Desempate";
+      return (state.mode === "groups") ? state.groups[state.currentGroupIdx] : "Solo";
+    }
+
+    function attachDnD(el){
+      el.addEventListener("dragstart", (e)=>{
+        if(state.locked) return e.preventDefault();
+        draggedEl = el;
+        el.classList.add("ghost");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      el.addEventListener("dragend", ()=>{
+        if(draggedEl) draggedEl.classList.remove("ghost");
+        draggedEl = null;
+      });
+      el.addEventListener("dragover", (e)=>{
+        if(state.locked) return;
+        e.preventDefault();
+        const target = el;
+        if(!draggedEl || target === draggedEl) return;
+        const rect = target.getBoundingClientRect();
+        const next = (e.clientY - rect.top) > (rect.height/2);
+        cardList.insertBefore(draggedEl, next ? target.nextSibling : target);
+      });
+      el.addEventListener("drop", (e)=>{
+        if(state.locked) return;
+        e.preventDefault();
+      });
+    }
+
+    function pickRoundEvents(want){
+      let pool = ALL_EVENTS.filter(e => !state.usedIds.has(e.id));
+      if(pool.length < want){
+        state.usedIds.clear();
+        pool = ALL_EVENTS.slice();
+      }
+
+      let chosen = [];
+      const hardish = (state.difficulty === "hard") || state.tieBreakActive || want === 3;
+
+      if(hardish){
+        // "difíciles": años cercanos entre sí
+        const sorted = pool.slice().sort((a,b)=>a.year-b.year);
+        const idx = Math.floor(Math.random()*sorted.length);
+        const base = sorted[idx].year;
+        const window = sorted.filter(e=>Math.abs(e.year-base) <= 25);
+        const src = (window.length >= want) ? window : sorted;
+
+        while(chosen.length < want){
+          chosen.push(src[Math.floor(Math.random()*src.length)]);
+        }
+      } else {
+        while(chosen.length < want){
+          chosen.push(pool[Math.floor(Math.random()*pool.length)]);
+        }
+      }
+
+      // unique + mark used
+      const uniq = [];
+      const seen = new Set();
+      for(const e of chosen){
+        if(seen.has(e.id)) continue;
+        seen.add(e.id);
+        uniq.push(e);
+        state.usedIds.add(e.id);
+      }
+      while(uniq.length < want){
+        const e = pool[Math.floor(Math.random()*pool.length)];
+        if(seen.has(e.id)) continue;
+        seen.add(e.id);
+        uniq.push(e);
+        state.usedIds.add(e.id);
+      }
+      return uniq;
+    }
+
+    function renderRound(){
+      state.locked = false;
+      btnCheck.disabled = false;
+      btnNext.disabled = true;
+
+      const want = state.tieBreakActive ? 3 : state.perScreen;
+
+      state.currentRoundEvents = pickRoundEvents(want);
+      state.correctOrder = state.currentRoundEvents.slice().sort((a,b)=>a.year-b.year);
+
+      const shown = shuffle(state.currentRoundEvents);
+
+      cardList.innerHTML = "";
+      for(const ev of shown){
+        const li = document.createElement("li");
+        li.className = "card";
+        li.draggable = true;
+        li.dataset.id = ev.id;
+
+        // IMPORTANT: no year shown until check
+        li.innerHTML = `
+          <div class="handle">⋮⋮</div>
+          <div>
+            <p class="title">${escapeHtml(ev.title)}</p>
+            <p class="meta"></p>
+          </div>
+        `;
+        attachDnD(li);
+        cardList.appendChild(li);
+      }
+
+      const who = currentGroupName();
+      const total = totalScreens();
+      const prefix = state.tieBreakActive ? "Desempate" : "Pantalla";
+      const index = state.tieBreakActive ? 1 : state.screenIndex;
+
+      whoLine.innerHTML = `Turno: <b>${escapeHtml(who)}</b> · ${prefix} <b>${index}</b> / <b>${total}</b>`;
+
+      const prog = getRoundProgress();
+      roundPill.textContent = prog.label;
+      roundBarFill.style.width = `${prog.pct}%`;
+    }
+
+    function getOrderIds(){
+      return [...cardList.querySelectorAll(".card")].map(x=>x.dataset.id);
+    }
+
+    function checkRound(){
+      if(state.locked) return;
+      state.locked = true;
+      btnCheck.disabled = true;
+
+      // score computed with the order before revealing years
+      const ids = getOrderIds();
+      const correctIds = state.correctOrder.map(e=>e.id);
+
+      let correct = 0;
+      const cards = [...cardList.querySelectorAll(".card")];
+
+      cards.forEach((card, idx)=>{
+        const ok = ids[idx] === correctIds[idx];
+        card.style.borderColor = ok ? "rgba(214,178,94,.65)" : "rgba(255,120,150,.55)";
+        card.style.background = ok ? "rgba(214,178,94,.10)" : "rgba(255,120,150,.08)";
+        card.classList.add("locked");
+        card.draggable = false;
+        if(ok) correct++;
+      });
+
+      const wrong = cards.length - correct;
+
+      if(state.tieBreakActive){
+        const g = currentGroupName();
+        state.tieScores[g] = (state.tieScores[g] || 0) + correct;
+      } else if(state.mode === "groups"){
+        const g = currentGroupName();
+        state.scoreByGroup[g] = (state.scoreByGroup[g] || 0) + correct;
+      } else {
+        state.correctTotal += correct;
+        state.wrongTotal += wrong;
+      }
+
+      // Reveal years now
+      cards.forEach((card)=>{
+        const id = card.dataset.id;
+        const ev = state.currentRoundEvents.find(e=>e.id===id);
+        const meta = card.querySelector(".meta");
+        if(ev && meta) meta.textContent = `Año: ${ev.year}`;
+      });
+
+      btnNext.disabled = false;
+    }
+
+    function nextScreen(){
+      if(state.tieBreakActive){
+        resolveTieBreakStep();
+        return;
+      }
+
+      const total = totalScreens();
+      if(state.screenIndex >= total){
+        endGame();
+        return;
+      }
+
+      state.screenIndex += 1;
+      if(state.mode === "groups"){
+        state.currentGroupIdx = (state.currentGroupIdx + 1) % state.groups.length;
+      }
+      renderRound();
+    }
+
+    function startTieBreak(winners){
+      state.tieBreakActive = true;
+      state.tieWinners = winners.slice();
+      state.tieScores = {};
+      for(const g of state.tieWinners) state.tieScores[g] = 0;
+      state.tieRound = 1;
+      state.currentGroupIdx = 0;
+
+      renderRound();
+    }
+
+    function resolveTieBreakStep(){
+      // each tied group plays one turn. When last finishes, evaluate.
+      if(state.currentGroupIdx < state.tieWinners.length - 1){
+        state.currentGroupIdx += 1;
+        renderRound();
+        return;
+      }
+
+      const entries = Object.entries(state.tieScores).sort((a,b)=>b[1]-a[1]);
+      const top = entries[0]?.[1] ?? 0;
+      const tied = entries.filter(x=>x[1]===top).map(x=>x[0]);
+
+      if(tied.length === 1){
+        state.tieBreakActive = false;
+
+        const q = pickRandom(QUOTES_GROUPS);
+        popupTitle.textContent = "🏆 Ganador";
+        popupText.textContent = `${tied[0]} gana el desempate.\n\n${q.text} — ${q.who}`;
+        popupScores.style.display = "block";
+        popupScores.textContent = entries.map(([g,sc])=>`${g}: ${sc} puntos`).join("\n");
+        popup.style.display = "flex";
+        return;
+      }
+
+      // still tied: repeat with new hard set
+      state.tieWinners = tied;
+      state.tieScores = {};
+      for(const g of state.tieWinners) state.tieScores[g] = 0;
+      state.tieRound += 1;
+      state.currentGroupIdx = 0;
+      renderRound();
+    }
+
+    function endGame(){
+      popupScores.style.display = "none";
+
+      if(state.mode === "groups"){
+        const entries = Object.entries(state.scoreByGroup).sort((a,b)=>b[1]-a[1]);
+        const topScore = entries[0]?.[1] ?? 0;
+        const winners = entries.filter(x=>x[1]===topScore).map(x=>x[0]);
+
+        if(winners.length > 1){
+          startTieBreak(winners);
+          return;
+        }
+
+        const q = pickRandom(QUOTES_GROUPS);
+        popupTitle.textContent = "🏆 Ganador";
+        popupText.textContent = `${winners[0]} gana con ${topScore} puntos.\n\n${q.text} — ${q.who}`;
+        popupScores.style.display = "block";
+        popupScores.textContent = entries.map(([g,sc])=>`${g}: ${sc} puntos`).join("\n");
+        popup.style.display = "flex";
+        return;
+      }
+
+      // solo
+      const total = state.correctTotal + state.wrongTotal;
+      const perfect = (state.wrongTotal === 0);
+
+      if(perfect){
+        const q = pickRandom(QUOTES_VICTORY);
+        popupTitle.textContent = "🧠 Genio de la historia";
+        popupText.textContent = `Has acertado TODO: ${state.correctTotal}/${total}.\n\n${q.text} — ${q.who}`;
+      } else {
+        const q = pickRandom(QUOTES_KEEP_GOING);
+        popupTitle.textContent = "Fin";
+        popupText.textContent = `Aciertos: ${state.correctTotal}/${total} · Fallos: ${state.wrongTotal}.\n\n${q.text} — ${q.who}`;
+      }
+      popup.style.display = "flex";
+    }
+
+    function startGame(){
+      game.style.display = "block";
+      renderRound();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showSettings(){
+      modeSolo.classList.toggle("active", state.mode==="solo");
+      modeGroups.classList.toggle("active", state.mode==="groups");
+      perScreenSel.value = String(state.perScreen);
+      roundsSel.value = String(state.rounds);
+      difficultySel.value = state.difficulty;
+      groupsTa.value = (state.groups || []).join("\n");
+      groupsBox.style.display = (state.mode === "groups") ? "" : "none";
+      backdrop.style.display = "flex";
+    }
+    function hideSettings(){ backdrop.style.display = "none"; }
+
+    /***********************
+     * UI events
+     ***********************/
+    btnStart.addEventListener("click", startGame);
+
+    btnSettings.addEventListener("click", showSettings);
+    btnClose.addEventListener("click", hideSettings);
+    backdrop.addEventListener("click", (e)=>{ if(e.target===backdrop) hideSettings(); });
+
+    modeSolo.addEventListener("click", ()=>{
+      state.mode = "solo";
+      modeSolo.classList.add("active");
+      modeGroups.classList.remove("active");
+      groupsBox.style.display = "none";
+    });
+    modeGroups.addEventListener("click", ()=>{
+      state.mode = "groups";
+      modeGroups.classList.add("active");
+      modeSolo.classList.remove("active");
+      groupsBox.style.display = "";
+    });
+
+    btnSave.addEventListener("click", ()=>{
+      state.perScreen = clamp(parseInt(perScreenSel.value,10), 4, 8);
+      state.rounds = clamp(parseInt(roundsSel.value,10), 1, 50);
+      state.difficulty = String(difficultySel.value || "normal");
+
+      if(state.mode === "groups"){
+        const gs = String(groupsTa.value||"")
+          .split("\n").map(s=>s.trim()).filter(Boolean)
+          .slice(0, 12);
+        state.groups = (gs.length >= 2) ? gs : ["Grupo 1","Grupo 2"];
+      } else {
+        state.groups = ["Solo"];
+      }
+
+      saveSettings();
+      resetGame();
+      hideSettings();
+    });
+
+    btnReset.addEventListener("click", ()=>{
+      resetGame();
+      hideSettings();
+    });
+
+    btnCheck.addEventListener("click", checkRound);
+    btnNext.addEventListener("click", nextScreen);
+
+    btnPopupClose.addEventListener("click", ()=>{
+      popup.style.display = "none";
+      resetGame();
+    });
+
+    (function init(){
+      loadSettings();
+
+      // apply to settings UI
+      perScreenSel.value = String(state.perScreen);
+      roundsSel.value = String(state.rounds);
+      difficultySel.value = state.difficulty;
+      modeSolo.classList.toggle("active", state.mode==="solo");
+      modeGroups.classList.toggle("active", state.mode==="groups");
+      groupsBox.style.display = (state.mode==="groups") ? "" : "none";
+      groupsTa.value = (state.groups || []).join("\n");
+
+      resetGame();
+    })();
+  </script>
+</body>
+</html>
