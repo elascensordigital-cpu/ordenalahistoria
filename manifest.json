@@ -1,0 +1,22 @@
+{
+  "name": "Ordena la Historia",
+  "short_name": "Historia",
+  "description": "Juego offline para ordenar eventos históricos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#061227",
+  "theme_color": "#061227",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
