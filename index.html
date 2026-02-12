@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>Ordena la Historia</title>
 
 <link rel="manifest" href="manifest.json">
@@ -18,11 +17,15 @@
   --line:rgba(214,178,94,.25);
   --text:#f5f1e6;
 }
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui, Arial;
-  background:var(--navy);
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: radial-gradient(900px 520px at 20% 0%, rgba(214,178,94,.10), transparent 55%),
+              radial-gradient(700px 450px at 85% 10%, rgba(214,178,94,.06), transparent 52%),
+              var(--navy);
   color:var(--text);
+  min-height:100vh;
 }
 
 /* HEADER */
@@ -34,69 +37,129 @@ header{
 }
 .header-img{
   width:100%;
+  height:auto;
   border-radius:12px;
   border:1px solid var(--line);
+  display:block;
+  /* IMPORTANT: que no "capture" el click sobre el papiro por error */
+  pointer-events:none;
 }
 .papyrus{
   position:absolute;
   top:20px;
   right:24px;
-  font-size:26px;
+
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+
+  font-size:24px;
   cursor:pointer;
+  user-select:none;
+
+  background: rgba(6,18,39,.55);
+  border:1px solid rgba(214,178,94,.35);
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
+
+  /* ✅ CLAVE */
+  z-index: 9999;
+  pointer-events:auto;
+}
+.papyrus:hover{
+  border-color: rgba(214,178,94,.65);
 }
 
 /* HOME */
 .home{
   text-align:center;
-  margin-top:20px;
+  margin: 18px auto 0;
+  padding: 0 14px;
+  max-width: 1000px;
+}
+.home-line{
+  color: rgba(245,241,230,.78);
+  font-size: 14px;
+  margin: 0 0 14px;
 }
 .start-btn{
-  margin-top:16px;
+  width:min(520px, 100%);
   padding:16px 26px;
-  font-weight:900;
-  border-radius:20px;
-  border:1px solid var(--gold);
-  background:rgba(214,178,94,.15);
+  font-weight:1000;
+  border-radius:22px;
+  border:1px solid rgba(214,178,94,.55);
+  background: linear-gradient(180deg, rgba(214,178,94,.18), rgba(6,18,39,.35));
   color:var(--gold2);
   cursor:pointer;
+  box-shadow: 0 16px 45px rgba(0,0,0,.55);
+  letter-spacing:.6px;
+  text-transform:uppercase;
 }
+.start-btn:active{ transform: translateY(1px); }
 
 /* GAME */
 main{
   max-width:800px;
-  margin:20px auto;
+  margin:20px auto 60px;
+  padding: 0 14px;
   display:none;
 }
 .panel{
   border:1px solid var(--line);
   border-radius:16px;
   padding:12px;
+  background: rgba(0,0,0,.15);
 }
 .panel-h{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:10px;
   margin-bottom:10px;
 }
 .round-pill{
-  border:1px solid var(--gold);
-  padding:4px 10px;
+  border:1px solid rgba(214,178,94,.55);
+  background: rgba(214,178,94,.10);
+  color: var(--gold2);
+  padding:6px 10px;
   border-radius:999px;
   font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
 }
-.list{
-  list-style:none;
-  padding:0;
-}
+.list{ list-style:none; padding:0; margin:0; }
 .card{
   border:1px solid var(--line);
   padding:10px;
   border-radius:12px;
   margin-bottom:8px;
-  background:rgba(0,0,0,.2);
+  background:rgba(0,0,0,.22);
   cursor:grab;
 }
 .card.locked{ cursor:default; }
+.year{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.78;
+}
+
+/* Buttons */
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+.btn{
+  border:1px solid rgba(214,178,94,.30);
+  background: rgba(6,18,39,.35);
+  color: var(--text);
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:900;
+  cursor:pointer;
+}
+.btn:hover{ border-color: rgba(214,178,94,.55); }
 
 /* MODAL */
 .backdrop{
@@ -106,28 +169,46 @@ main{
   display:none;
   justify-content:center;
   align-items:center;
+  padding: 18px;
+  z-index: 10000;
 }
 .modal{
-  background:#061227;
-  border:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(7,26,55,.96), rgba(6,18,39,.96));
+  border:1px solid rgba(214,178,94,.25);
   padding:16px;
   border-radius:16px;
-  width:90%;
-  max-width:500px;
+  width:100%;
+  max-width:520px;
+  box-shadow: 0 18px 70px rgba(0,0,0,.65);
 }
-button{ cursor:pointer; }
+.modal h3{ margin:0 0 10px; }
+label{ display:block; margin: 10px 0 6px; font-size: 12px; opacity:.8; }
+select, textarea{
+  width:100%;
+  border:1px solid rgba(214,178,94,.22);
+  background: rgba(6,18,39,.35);
+  color: rgba(245,241,230,.92);
+  border-radius: 14px;
+  padding: 10px 12px;
+  outline:none;
+}
+textarea{ min-height: 90px; resize: vertical; }
+
+@media (max-width: 520px){
+  .papyrus{ top:18px; right:18px; }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <img src="cabecera.png" class="header-img">
-  <div class="papyrus" id="btnSettings">📜</div>
+  <img src="cabecera.png" class="header-img" alt="Cabecera">
+  <div class="papyrus" id="btnSettings" role="button" tabindex="0" aria-label="Ajustes">📜</div>
 </header>
 
 <div class="home">
-  <div>Arrastra los eventos para ordenarlos del más antiguo → más reciente.</div>
+  <div class="home-line">Arrastra los eventos para ordenarlos del más antiguo → más reciente.</div>
   <button class="start-btn" id="btnStart">¡ORDENEMOS LA HISTORIA!</button>
 </div>
 
@@ -135,139 +216,211 @@ button{ cursor:pointer; }
   <div class="panel">
     <div class="panel-h">
       <div id="whoLine">Turno: Solo</div>
-      <div class="round-pill" id="roundPill">Ronda 1</div>
+      <div class="round-pill" id="roundPill">Ronda 1/8</div>
     </div>
 
     <ul id="cardList" class="list"></ul>
 
-    <button id="btnCheck">Comprobar</button>
-    <button id="btnNext">Siguiente</button>
+    <div class="actions">
+      <button class="btn" id="btnCheck">Comprobar</button>
+      <button class="btn" id="btnNext">Siguiente</button>
+    </div>
   </div>
 </main>
 
 <!-- SETTINGS -->
-<div class="backdrop" id="settings">
+<div class="backdrop" id="settings" aria-modal="true" role="dialog">
   <div class="modal">
-    <h3>Ajustes</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <h3>Ajustes</h3>
+      <button class="btn" id="close" type="button">Cerrar</button>
+    </div>
 
-    <label>Modo</label>
+    <label for="mode">Modo</label>
     <select id="mode">
       <option value="solo">Solo</option>
       <option value="groups">Grupos</option>
     </select>
 
-    <label>Rondas</label>
+    <label for="rounds">Rondas</label>
     <select id="rounds">
       <option>5</option>
       <option selected>8</option>
       <option>10</option>
+      <option>12</option>
     </select>
 
-    <label>Grupos</label>
-    <textarea id="groups"></textarea>
+    <label for="groups">Grupos</label>
+    <textarea id="groups" placeholder="Atenas&#10;Roma&#10;Sumer"></textarea>
 
-    <br><br>
-    <button id="save">Guardar</button>
-    <button id="close">Cerrar</button>
+    <div class="actions">
+      <button class="btn" id="save" type="button" style="border-color: rgba(214,178,94,.55);">Guardar</button>
+      <button class="btn" id="reset" type="button">Reiniciar</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ===== EVENTOS ===== */
-const EVENTS = [
-  {year:476,title:"Caída del Imperio romano de Occidente"},
-  {year:1492,title:"Llegada de Colón a América"},
-  {year:1789,title:"Revolución francesa"},
-  {year:1914,title:"Primera Guerra Mundial"},
-  {year:1969,title:"Llegada a la Luna"},
-  {year:1989,title:"Caída del Muro de Berlín"}
-];
+document.addEventListener("DOMContentLoaded", () => {
+  // ===== EVENTOS DEMO (tu lista grande irá aquí) =====
+  const EVENTS = [
+    {year:476, title:"Caída del Imperio romano de Occidente"},
+    {year:800, title:"Coronación de Carlomagno"},
+    {year:1066, title:"Conquista normanda de Inglaterra"},
+    {year:1492, title:"Llegada de Colón a América"},
+    {year:1789, title:"Comienzo de la Revolución francesa"},
+    {year:1914, title:"Comienza la Primera Guerra Mundial"},
+    {year:1969, title:"Llegada a la Luna (Apollo 11)"},
+    {year:1989, title:"Caída del Muro de Berlín"}
+  ];
 
-/* ===== ESTADO ===== */
-let round=1;
-let rounds=8;
-let locked=false;
-let current=[];
+  // ===== ESTADO (simplificado demo) =====
+  let round = 1;
+  let rounds = 8;
+  let locked = false;
+  let current = [];
 
-/* ===== UI ===== */
-const game=document.getElementById("game");
-const list=document.getElementById("cardList");
+  // ===== UI =====
+  const game = document.getElementById("game");
+  const list = document.getElementById("cardList");
+  const roundPill = document.getElementById("roundPill");
+  const whoLine = document.getElementById("whoLine");
 
-/* START */
-document.getElementById("btnStart").onclick=()=>{
-  game.style.display="block";
-  startRound();
-};
+  const btnStart = document.getElementById("btnStart");
+  const btnSettings = document.getElementById("btnSettings");
+  const settings = document.getElementById("settings");
 
-/* SETTINGS */
-const settings=document.getElementById("settings");
-document.getElementById("btnSettings").onclick=()=>settings.style.display="flex";
-document.getElementById("close").onclick=()=>settings.style.display="none";
-document.getElementById("save").onclick=()=>{
-  rounds=parseInt(document.getElementById("rounds").value);
-  settings.style.display="none";
-};
+  const btnClose = document.getElementById("close");
+  const btnSave = document.getElementById("save");
+  const btnReset = document.getElementById("reset");
 
-/* RONDA */
-function startRound(){
-  locked=false;
-  document.getElementById("roundPill").textContent=`Ronda ${round}/${rounds}`;
+  const modeSel = document.getElementById("mode");
+  const roundsSel = document.getElementById("rounds");
+  const groupsTa = document.getElementById("groups");
 
-  current=[...EVENTS].sort(()=>Math.random()-.5).slice(0,5);
-  list.innerHTML="";
+  const btnCheck = document.getElementById("btnCheck");
+  const btnNext = document.getElementById("btnNext");
 
-  current.forEach(ev=>{
-    const li=document.createElement("li");
-    li.className="card";
-    li.draggable=true;
-    li.dataset.year=ev.year;
-    li.innerHTML=`${ev.title}<div class="year"></div>`;
-    addDrag(li);
-    list.appendChild(li);
+  // ===== DEBUG: asegúrate de que el papiro existe =====
+  console.log("📜 btnSettings:", !!btnSettings);
+
+  // START
+  btnStart.addEventListener("click", () => {
+    game.style.display = "block";
+    startRound();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
-}
 
-/* DRAG */
-let dragEl=null;
-function addDrag(el){
-  el.ondragstart=()=>dragEl=el;
-  el.ondragover=e=>{
-    e.preventDefault();
-    if(el===dragEl)return;
-    list.insertBefore(dragEl,el);
-  };
-}
-
-/* CHECK */
-document.getElementById("btnCheck").onclick=()=>{
-  if(locked)return;
-  locked=true;
-
-  const cards=[...document.querySelectorAll(".card")];
-  const sorted=[...cards].sort((a,b)=>a.dataset.year-b.dataset.year);
-
-  cards.forEach((c,i)=>{
-    const year=c.dataset.year;
-    c.querySelector(".year").textContent="Año: "+year;
-    if(c!==sorted[i]) c.style.borderColor="red";
-    else c.style.borderColor="gold";
-  });
-};
-
-/* NEXT */
-document.getElementById("btnNext").onclick=()=>{
-  round++;
-  if(round>rounds){
-    alert("Fin del juego");
-    round=1;
+  // SETTINGS open/close
+  function openSettings(){
+    console.log("📜 click: abrir ajustes");
+    settings.style.display = "flex";
   }
-  startRound();
-};
+  function closeSettings(){
+    settings.style.display = "none";
+  }
 
-/* SERVICE WORKER */
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./sw.js");
-}
+  btnSettings.addEventListener("click", openSettings);
+
+  // Accesibilidad: Enter/Espacio en el papiro
+  btnSettings.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      openSettings();
+    }
+  });
+
+  btnClose.addEventListener("click", closeSettings);
+  settings.addEventListener("click", (e)=>{ if(e.target === settings) closeSettings(); });
+
+  btnSave.addEventListener("click", ()=>{
+    rounds = parseInt(roundsSel.value, 10) || 8;
+    round = 1;
+    roundPill.textContent = `Ronda ${round}/${rounds}`;
+    // (modo/grupos se aplican en tu versión grande)
+    closeSettings();
+  });
+
+  btnReset.addEventListener("click", ()=>{
+    round = 1;
+    locked = false;
+    list.innerHTML = "";
+    game.style.display = "none";
+    closeSettings();
+  });
+
+  // ===== RONDA =====
+  function startRound(){
+    locked = false;
+    whoLine.textContent = "Turno: Solo";
+    roundPill.textContent = `Ronda ${round}/${rounds}`;
+
+    current = [...EVENTS].sort(()=>Math.random()-.5).slice(0, 5);
+    list.innerHTML = "";
+
+    current.forEach(ev => {
+      const li = document.createElement("li");
+      li.className = "card";
+      li.draggable = true;
+      li.dataset.year = String(ev.year);
+      li.innerHTML = `${ev.title}<div class="year"></div>`;
+      addDrag(li);
+      list.appendChild(li);
+    });
+  }
+
+  // ===== DRAG =====
+  let dragEl = null;
+  function addDrag(el){
+    el.addEventListener("dragstart", ()=>{ if(!locked) dragEl = el; });
+    el.addEventListener("dragover", (e)=>{
+      e.preventDefault();
+      if(locked) return;
+      if(!dragEl || el === dragEl) return;
+      const rect = el.getBoundingClientRect();
+      const after = (e.clientY - rect.top) > rect.height/2;
+      list.insertBefore(dragEl, after ? el.nextSibling : el);
+    });
+  }
+
+  // CHECK
+  btnCheck.addEventListener("click", ()=>{
+    if(locked) return;
+    locked = true;
+
+    const cards = [...document.querySelectorAll(".card")];
+    const sorted = [...cards].sort((a,b)=>Number(a.dataset.year)-Number(b.dataset.year));
+
+    cards.forEach((c,i)=>{
+      c.classList.add("locked");
+      c.draggable = false;
+      c.querySelector(".year").textContent = "Año: " + c.dataset.year;
+
+      if(c !== sorted[i]){
+        c.style.borderColor = "rgba(255,120,150,.85)";
+      } else {
+        c.style.borderColor = "rgba(214,178,94,.85)";
+      }
+    });
+  });
+
+  // NEXT
+  btnNext.addEventListener("click", ()=>{
+    round++;
+    if(round > rounds){
+      alert("Fin del juego (demo).");
+      round = 1;
+    }
+    startRound();
+  });
+
+  // SW (PWA)
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    });
+  }
+});
 </script>
 
 </body>
